@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Redis } from "@upstash/redis";
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+const url =
+  process.env.UPSTASH_REDIS_REST_URL ||
+  process.env.KV_REST_API_URL ||
+  "";
+const token =
+  process.env.UPSTASH_REDIS_REST_TOKEN ||
+  process.env.KV_REST_API_TOKEN ||
+  "";
+
+const redis = new Redis({ url, token });
 
 const KEY = "kpss_arda";
 
