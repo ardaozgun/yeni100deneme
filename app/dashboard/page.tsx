@@ -1,96 +1,62 @@
-"use client";
-import { useEffect, useState } from "react";
-import { StatCard } from "@/components/StatCard";
-import { Video, Trophy, BookOpen, TrendingUp, Calendar, Target } from "lucide-react";
-import { getVideoProgress, getDenemeKayitlari } from "@/lib/storage";
+'use client';
+import { useData } from '@/providers/DataProvider';
 
 const DERSLER = [
-  { key: "turkce", label: "Türkçe", toplam: 46 },
-  { key: "matematik", label: "Matematik", toplam: 81 },
-  { key: "tarih", label: "Tarih", toplam: 60 },
-  { key: "cografya", label: "Coğrafya", toplam: 34 },
-  { key: "vatandaslik", label: "Vatandaşlık", toplam: 48 },
+  { key: 'turkce', label: 'Türkçe', total: 46 },
+  { key: 'matematik', label: 'Matematik', total: 81 },
+  { key: 'tarih', label: 'Tarih', total: 60 },
+  { key: 'cografya', label: 'Coğrafya', total: 34 },
+  { key: 'vatandaslik', label: 'Vatandaşlık', total: 48 },
 ];
-const TOPLAM_VIDEO = 269;
 
 export default function DashboardPage() {
-  const [izlenenVideo, setIzlenenVideo] = useState(0);
-  const [sonPuan, setSonPuan] = useState<number | null>(null);
-  const [denemeCount, setDenemeCount] = useState(0);
-  const [dersIlerlemeleri, setDersIlerlemeleri] = useState<{ label: string; yuzde: number }[]>([]);
+  const { videos, denemeler } = useData();
 
-  useEffect(() => {
-    const progress = getVideoProgress();
-    let toplam = 0;
-    const ilerleme = DERSLER.map((d) => {
-      const checked = progress[d.key] || [];
-      const izlenen = checked.filter(Boolean).length;
-      toplam += izlenen;
-      return { label: d.label, yuzde: (izlenen / d.toplam) * 100 };
-    });
-    setIzlenenVideo(toplam);
-    setDersIlerlemeleri(ilerleme);
-    const denemeler = getDenemeKayitlari();
-    setDenemeCount(denemeler.length);
-    if (denemeler.length > 0) setSonPuan(denemeler[denemeler.length - 1].puan);
-  }, []);
-
-  const videoYuzde = (izlenenVideo / TOPLAM_VIDEO) * 100;
+  const totalVideos = DERSLER.reduce((a, d) => a + d.total, 0);
+  const watchedVideos = DERSLER.reduce((a, d) => a + (videos[d.key]?.length ?? 0), 0);
+  const lastPuan = denemeler[0]?.puan?.toFixed(2) ?? '-';
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-1">Dashboard</h1>
-        <p className="text-sm text-gray-500">KPSS 2026 Ortaöğretim — Genel Durumun</p>
+    <div className="p-6 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold text-white mb-6">Dashboard</h1>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <StatCard label="İzlenen Video" value={`${watchedVideos}/${totalVideos}`} color="violet" />
+        <StatCard label="Son Puan" value={lastPuan} color="green" />
+        <StatCard label="Kayıtlı Deneme" value={String(denemeler.length)} color="blue" />
+        <StatCard label="Video İlerleme" value={`${Math.round((watchedVideos / totalVideos) * 100)}%`} color="yellow" />
       </div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="İzlenen Video" value={izlenenVideo} subtitle={`Toplam ${TOPLAM_VIDEO} videodan`} icon={Video} color="violet" progress={videoYuzde} />
-        <StatCard title="Son Deneme Puanı" value={sonPuan !== null ? sonPuan.toFixed(2) : "—"} subtitle="KPSS P94" icon={Trophy} color="orange" />
-        <StatCard title="Kayıtlı Deneme" value={denemeCount} subtitle="Toplam deneme sayısı" icon={BookOpen} color="blue" />
-        <StatCard title="Video İlerleme" value={`%${videoYuzde.toFixed(1)}`} subtitle="Tüm dersler" icon={TrendingUp} color="green" progress={videoYuzde} />
-      </div>
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="rounded-2xl p-6 border border-white/5" style={{ background: "rgba(255,255,255,0.02)" }}>
-          <div className="flex items-center gap-2 mb-5">
-            <Target size={18} className="text-violet-400" />
-            <h2 className="font-semibold text-white">Ders Bazlı İlerleme</h2>
-          </div>
-          <div className="space-y-4">
-            {dersIlerlemeleri.map((d) => (
-              <div key={d.label}>
-                <div className="flex justify-between text-sm mb-1.5">
-                  <span className="text-gray-300">{d.label}</span>
-                  <span className="text-violet-400 font-medium">%{d.yuzde.toFixed(0)}</span>
-                </div>
-                <div className="h-2 rounded-full bg-white/5 overflow-hidden">
-                  <div className="h-full rounded-full bg-gradient-to-r from-violet-600 to-violet-400" style={{ width: `${d.yuzde}%` }} />
-                </div>
+      <div className="space-y-3">
+        {DERSLER.map(d => {
+          const watched = videos[d.key]?.length ?? 0;
+          const pct = Math.round((watched / d.total) * 100);
+          return (
+            <div key={d.key} className="bg-gray-900 rounded-xl p-4 border border-gray-800">
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-white font-medium">{d.label}</span>
+                <span className="text-gray-400">{watched}/{d.total} video</span>
               </div>
-            ))}
-          </div>
-        </div>
-        <div className="rounded-2xl p-6 border border-white/5" style={{ background: "rgba(255,255,255,0.02)" }}>
-          <div className="flex items-center gap-2 mb-5">
-            <Calendar size={18} className="text-violet-400" />
-            <h2 className="font-semibold text-white">Hızlı Bilgiler</h2>
-          </div>
-          <div className="space-y-3">
-            {[
-              { label: "Sınav Türü", value: "KPSS Ortaöğretim" },
-              { label: "Puan Türü", value: "P94" },
-              { label: "Toplam Soru", value: "100 Soru" },
-              { label: "Süre", value: "120 Dakika" },
-              { label: "Net Kuralı", value: "4 Yanlış → 1 Doğru" },
-              { label: "Puan Formülü", value: "50 + (Net × 0.65)" },
-            ].map(({ label, value }) => (
-              <div key={label} className="flex justify-between py-2 border-b border-white/5 last:border-0">
-                <span className="text-gray-500 text-sm">{label}</span>
-                <span className="text-gray-200 text-sm font-medium">{value}</span>
+              <div className="w-full bg-gray-800 rounded-full h-2">
+                <div className="bg-violet-500 h-2 rounded-full transition-all" style={{ width: `${pct}%` }} />
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          );
+        })}
       </div>
+    </div>
+  );
+}
+
+function StatCard({ label, value, color }: { label: string; value: string; color: string }) {
+  const colors: Record<string, string> = {
+    violet: 'text-violet-400 border-violet-800',
+    green: 'text-green-400 border-green-800',
+    blue: 'text-blue-400 border-blue-800',
+    yellow: 'text-yellow-400 border-yellow-800',
+  };
+  return (
+    <div className={`bg-gray-900 border rounded-xl p-4 ${colors[color]}`}>
+      <p className="text-xs text-gray-500 mb-1">{label}</p>
+      <p className={`text-2xl font-bold ${colors[color].split(' ')[0]}`}>{value}</p>
     </div>
   );
 }
