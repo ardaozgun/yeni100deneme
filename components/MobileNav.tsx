@@ -1,30 +1,31 @@
-"use client";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, Video, Calculator, BarChart3 } from "lucide-react";
+'use client';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { LayoutDashboard, Video, Calculator, BarChart2 } from 'lucide-react';
 
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/videolar", label: "Videolar", icon: Video },
-  { href: "/hesapla", label: "Hesapla", icon: Calculator },
-  { href: "/analiz", label: "Analiz", icon: BarChart3 },
+const links = [
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/videolar', icon: Video, label: 'Videolar' },
+  { href: '/hesapla', icon: Calculator, label: 'Hesapla' },
+  { href: '/analiz', icon: BarChart2, label: 'Analiz' },
 ];
 
-export function MobileNav() {
+export default function MobileNav() {
   const pathname = usePathname();
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-2 py-2"
-      style={{ background: "rgba(10,10,10,0.97)", borderTop: "1px solid rgba(124,58,237,0.2)", backdropFilter: "blur(16px)" }}>
-      {navItems.map(({ href, label, icon: Icon }) => {
-        const active = pathname === href;
-        return (
-          <Link key={href} href={href} className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl ${active ? "text-violet-400" : "text-gray-500"}`}>
-            <Icon size={20} />
-            <span className="text-[10px] font-medium">{label}</span>
-            {active && <div className="w-1 h-1 rounded-full bg-violet-400" />}
-          </Link>
-        );
-      })}
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 flex justify-around py-2 z-50">
+      {links.map(({ href, icon: Icon, label }) => (
+        <Link
+          key={href}
+          href={href}
+          className={`flex flex-col items-center gap-1 px-3 py-1 text-xs ${
+            pathname === href ? 'text-violet-400' : 'text-gray-500'
+          }`}
+        >
+          <Icon className="w-5 h-5" />
+          {label}
+        </Link>
+      ))}
     </nav>
   );
 }
