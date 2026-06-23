@@ -1,47 +1,53 @@
-"use client";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, Video, Calculator, BarChart3, GraduationCap } from "lucide-react";
+'use client';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { LayoutDashboard, Video, Calculator, BarChart2, LogOut } from 'lucide-react';
 
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/videolar", label: "Videolar", icon: Video },
-  { href: "/hesapla", label: "Hesapla", icon: Calculator },
-  { href: "/analiz", label: "Analiz", icon: BarChart3 },
+const links = [
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/videolar', icon: Video, label: 'Videolar' },
+  { href: '/hesapla', icon: Calculator, label: 'Hesapla' },
+  { href: '/analiz', icon: BarChart2, label: 'Analiz' },
 ];
 
-export function Sidebar() {
+export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function logout() {
+    await fetch('/api/auth', { method: 'DELETE' });
+    router.push('/login');
+  }
+
   return (
-    <aside className="hidden md:flex fixed left-0 top-0 h-full w-64 flex-col z-40"
-      style={{ background: "rgba(10,10,10,0.95)", borderRight: "1px solid rgba(124,58,237,0.15)", backdropFilter: "blur(12px)" }}>
-      <div className="flex items-center gap-3 px-6 py-6 border-b border-white/5">
-        <div className="w-9 h-9 rounded-xl bg-violet-600 flex items-center justify-center">
-          <GraduationCap size={20} className="text-white" />
-        </div>
-        <div>
-          <p className="font-bold text-white text-sm">KPSS 2026</p>
-          <p className="text-[10px] text-violet-400 uppercase tracking-widest">Ortaöğretim</p>
-        </div>
+    <aside className="hidden md:flex flex-col fixed left-0 top-0 h-full w-64 bg-gray-900 border-r border-gray-800 p-4">
+      <div className="mb-8">
+        <h1 className="text-xl font-bold text-violet-400">KPSS 2026</h1>
+        <p className="text-xs text-gray-500">Ortaöğretim Takip</p>
       </div>
-      <nav className="flex-1 px-3 py-4 space-y-1">
-        {navItems.map(({ href, label, icon: Icon }) => {
-          const active = pathname === href;
-          return (
-            <Link key={href} href={href} className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group ${active ? "bg-violet-600/20 text-violet-300 border border-violet-500/30" : "text-gray-400 hover:text-gray-200 hover:bg-white/5"}`}>
-              <Icon size={18} className={active ? "text-violet-400" : "text-gray-500 group-hover:text-gray-300"} />
-              {label}
-              {active && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-violet-400" />}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 space-y-1">
+        {links.map(({ href, icon: Icon, label }) => (
+          <Link
+            key={href}
+            href={href}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition text-sm font-medium ${
+              pathname === href
+                ? 'bg-violet-600 text-white'
+                : 'text-gray-400 hover:text-white hover:bg-gray-800'
+            }`}
+          >
+            <Icon className="w-4 h-4" />
+            {label}
+          </Link>
+        ))}
       </nav>
-      <div className="px-4 py-4 border-t border-white/5">
-        <div className="rounded-xl p-3 text-xs text-gray-500" style={{ background: "rgba(124,58,237,0.06)", border: "1px solid rgba(124,58,237,0.12)" }}>
-          <p className="font-medium text-violet-400 mb-1">Benim Hocam</p>
-          <p>2026 Ortaöğretim Serisi</p>
-        </div>
-      </div>
+      <button
+        onClick={logout}
+        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-red-400 hover:bg-gray-800 transition mt-4"
+      >
+        <LogOut className="w-4 h-4" />
+        Çıkış Yap
+      </button>
     </aside>
   );
 }
