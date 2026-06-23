@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Video, Calculator, BarChart2, LogOut } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { LayoutDashboard, Video, Calculator, BarChart2 } from 'lucide-react';
 
 const links = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -12,13 +12,6 @@ const links = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const router = useRouter();
-
-  async function logout() {
-    await fetch('/api/auth', { method: 'DELETE' });
-    router.push('/login');
-  }
-
   return (
     <aside className="hidden md:flex flex-col fixed left-0 top-0 h-full w-64 bg-gray-900 border-r border-gray-800 p-4">
       <div className="mb-8">
@@ -41,13 +34,6 @@ export default function Sidebar() {
           </Link>
         ))}
       </nav>
-      <button
-        onClick={logout}
-        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-red-400 hover:bg-gray-800 transition mt-4"
-      >
-        <LogOut className="w-4 h-4" />
-        Çıkış Yap
-      </button>
     </aside>
   );
 }
