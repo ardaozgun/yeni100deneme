@@ -2,28 +2,25 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 export type DenemeKayit = {
-  id: string; ad: string; tarih: string; puan: number; toplamNet: number;
-  dersler: {
-    turkce: { dogru: number; yanlis: number; net: number };
-    matematik: { dogru: number; yanlis: number; net: number };
-    tarih: { dogru: number; yanlis: number; net: number };
-    cografya: { dogru: number; yanlis: number; net: number };
-    vatandaslik: { dogru: number; yanlis: number; net: number };
-  };
+  id: string;
+  tarih: string;
+  dersler: Record<string, { dogru: number; yanlis: number }>;
+  toplamNet: number;
+  puan: number;
 };
 
 interface DataCtx {
-  videos: Record<string, boolean[]>;
+  videos: Record<string, number[]>;
   denemeler: DenemeKayit[];
   loaded: boolean;
-  setVideos: (v: Record<string, boolean[]>) => void;
+  setVideos: (v: Record<string, number[]>) => void;
   addDeneme: (d: DenemeKayit) => void;
   deleteDeneme: (id: string) => void;
 }
 
 const Ctx = createContext<DataCtx | null>(null);
 
-function syncServer(videos: Record<string, boolean[]>, denemeler: DenemeKayit[]) {
+function syncServer(videos: Record<string, number[]>, denemeler: DenemeKayit[]) {
   fetch("/api/data", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -32,7 +29,7 @@ function syncServer(videos: Record<string, boolean[]>, denemeler: DenemeKayit[])
 }
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
-  const [videos, setVid] = useState<Record<string, boolean[]>>({});
+  const [videos, setVid] = useState<Record<string, number[]>>({});
   const [denemeler, setDen] = useState<DenemeKayit[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -44,7 +41,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       .finally(() => setLoaded(true));
   }, []);
 
-  const setVideos = (v: Record<string, boolean[]>) => {
+  const setVideos = (v: Record<string, number[]>) => {
     setVid(v);
     syncServer(v, denemeler);
   };
